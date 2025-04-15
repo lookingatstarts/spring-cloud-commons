@@ -77,8 +77,7 @@ public class BlockingLoadBalancerClient implements LoadBalancerClient {
 
 	@Override
 	public ServiceInstance choose(String serviceId) {
-		ReactiveLoadBalancer<ServiceInstance> loadBalancer = loadBalancerClientFactory
-				.getInstance(serviceId);
+		ReactiveLoadBalancer<ServiceInstance> loadBalancer = loadBalancerClientFactory.getInstance(serviceId);
 		if (loadBalancer == null) {
 			return null;
 		}

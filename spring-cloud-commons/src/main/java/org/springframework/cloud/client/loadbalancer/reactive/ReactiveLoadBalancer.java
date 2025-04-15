@@ -20,7 +20,7 @@ import org.reactivestreams.Publisher;
 
 /**
  * Reactive load balancer.
- *
+ * 负载均衡器
  * @param <T> type of the response
  * @author Spencer Gibb
  * @author Olga Maciaszek-Sharma

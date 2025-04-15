@@ -23,7 +23,7 @@ import org.springframework.cloud.client.ServiceInstance;
 
 /**
  * Represents a client-side load balancer.
- *
+ * 客户端：负载均衡
  * @author Spencer Gibb
  */
 public interface LoadBalancerClient extends ServiceInstanceChooser {

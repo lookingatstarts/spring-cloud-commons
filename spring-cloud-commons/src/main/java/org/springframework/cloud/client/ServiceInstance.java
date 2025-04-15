@@ -21,7 +21,7 @@ import java.util.Map;
 
 /**
  * Represents an instance of a service in a discovery system.
- *
+ * 服务实例
  * @author Spencer Gibb
  * @author Tim Ysewyn
  */
@@ -60,6 +60,7 @@ public interface ServiceInstance {
 	URI getUri();
 
 	/**
+	 * 元数据
 	 * @return The key / value pair metadata associated with the service instance.
 	 */
 	Map<String, String> getMetadata();

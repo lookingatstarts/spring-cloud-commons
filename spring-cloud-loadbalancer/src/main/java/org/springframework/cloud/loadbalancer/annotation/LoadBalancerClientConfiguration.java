@@ -127,8 +127,7 @@ public class LoadBalancerClientConfiguration {
 		@Bean
 		@ConditionalOnBean(DiscoveryClient.class)
 		@ConditionalOnMissingBean
-		@ConditionalOnProperty(value = "spring.cloud.loadbalancer.configurations",
-				havingValue = "default", matchIfMissing = true)
+		@ConditionalOnProperty(value = "spring.cloud.loadbalancer.configurations", havingValue = "default", matchIfMissing = true)
 		public ServiceInstanceListSupplier discoveryClientServiceInstanceListSupplier(
 				ConfigurableApplicationContext context) {
 			return ServiceInstanceListSupplier.builder().withBlockingDiscoveryClient()

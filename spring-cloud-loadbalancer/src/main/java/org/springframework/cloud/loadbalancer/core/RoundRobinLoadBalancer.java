@@ -33,7 +33,7 @@ import org.springframework.cloud.client.loadbalancer.reactive.Response;
 
 /**
  * A Round-Robin-based implementation of {@link ReactorServiceInstanceLoadBalancer}.
- *
+ * 轮询
  * @author Spencer Gibb
  * @author Olga Maciaszek-Sharma
  */
