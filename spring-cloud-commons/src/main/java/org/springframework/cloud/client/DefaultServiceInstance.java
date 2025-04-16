@@ -29,16 +29,17 @@ import java.util.Objects;
  */
 public class DefaultServiceInstance implements ServiceInstance {
 
+	// 实例ID
 	private final String instanceId;
-
+	// 服务名称
 	private final String serviceId;
-
+	// ip
 	private final String host;
-
+	// 端口
 	private final int port;
-
+	// https还是http
 	private final boolean secure;
-
+	// 元数据，方便扩展
 	private final Map<String, String> metadata;
 
 	/**

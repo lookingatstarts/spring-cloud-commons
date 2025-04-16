@@ -31,10 +31,13 @@ import org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerProper
 import org.springframework.cloud.loadbalancer.cache.LoadBalancerCacheManager;
 import org.springframework.cloud.loadbalancer.config.LoadBalancerZoneConfig;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**
+ * 建造者设计模式
+ *
  * A Builder for creating a {@link ServiceInstanceListSupplier} hierarchy to be used in
  * {@link ReactorLoadBalancer} configuration.
  *
@@ -43,8 +46,7 @@ import org.springframework.web.reactive.function.client.WebClient;
  */
 public final class ServiceInstanceListSupplierBuilder {
 
-	private static final Log LOG = LogFactory
-			.getLog(ServiceInstanceListSupplierBuilder.class);
+	private static final Log LOG = LogFactory.getLog(ServiceInstanceListSupplierBuilder.class);
 
 	private Creator baseCreator;
 
@@ -56,6 +58,7 @@ public final class ServiceInstanceListSupplierBuilder {
 	}
 
 	/**
+	 * 使用阻塞式DiscoveryClient
 	 * Sets a blocking {@link DiscoveryClient}-based
 	 * {@link DiscoveryClientServiceInstanceListSupplier} as a base
 	 * {@link ServiceInstanceListSupplier} in the hierarchy.
@@ -63,19 +66,19 @@ public final class ServiceInstanceListSupplierBuilder {
 	 */
 	public ServiceInstanceListSupplierBuilder withBlockingDiscoveryClient() {
 		if (baseCreator != null && LOG.isWarnEnabled()) {
-			LOG.warn(
-					"Overriding a previously set baseCreator with a blocking DiscoveryClient baseCreator.");
+			LOG.warn("Overriding a previously set baseCreator with a blocking DiscoveryClient baseCreator.");
 		}
 		this.baseCreator = context -> {
+			// 从容器中获取DiscoveryClient对象
 			DiscoveryClient discoveryClient = context.getBean(DiscoveryClient.class);
-
-			return new DiscoveryClientServiceInstanceListSupplier(discoveryClient,
-					context.getEnvironment());
+			ConfigurableEnvironment environment = context.getEnvironment();
+			return new DiscoveryClientServiceInstanceListSupplier(discoveryClient,environment);
 		};
 		return this;
 	}
 
 	/**
+	 * 使用响应式ReactiveDiscoveryClient
 	 * Sets a {@link ReactiveDiscoveryClient}-based
 	 * {@link DiscoveryClientServiceInstanceListSupplier} as a base
 	 * {@link ServiceInstanceListSupplier} in the hierarchy.
@@ -83,15 +86,12 @@ public final class ServiceInstanceListSupplierBuilder {
 	 */
 	public ServiceInstanceListSupplierBuilder withDiscoveryClient() {
 		if (baseCreator != null && LOG.isWarnEnabled()) {
-			LOG.warn(
-					"Overriding a previously set baseCreator with a ReactiveDiscoveryClient baseCreator.");
+			LOG.warn("Overriding a previously set baseCreator with a ReactiveDiscoveryClient baseCreator.");
 		}
 		this.baseCreator = context -> {
-			ReactiveDiscoveryClient discoveryClient = context
-					.getBean(ReactiveDiscoveryClient.class);
-
-			return new DiscoveryClientServiceInstanceListSupplier(discoveryClient,
-					context.getEnvironment());
+			ReactiveDiscoveryClient discoveryClient = context.getBean(ReactiveDiscoveryClient.class);
+			ConfigurableEnvironment environment = context.getEnvironment();
+			return new DiscoveryClientServiceInstanceListSupplier(discoveryClient, environment);
 		};
 		return this;
 	}
@@ -102,8 +102,7 @@ public final class ServiceInstanceListSupplierBuilder {
 	 * @param supplier a user-provided {@link ServiceInstanceListSupplier} instance
 	 * @return the {@link ServiceInstanceListSupplierBuilder} object
 	 */
-	public ServiceInstanceListSupplierBuilder withBase(
-			ServiceInstanceListSupplier supplier) {
+	public ServiceInstanceListSupplierBuilder withBase(ServiceInstanceListSupplier supplier) {
 		this.baseCreator = context -> supplier;
 		return this;
 	}
@@ -115,11 +114,9 @@ public final class ServiceInstanceListSupplierBuilder {
 	 */
 	public ServiceInstanceListSupplierBuilder withHealthChecks() {
 		DelegateCreator creator = (context, delegate) -> {
-			LoadBalancerProperties properties = context
-					.getBean(LoadBalancerProperties.class);
+			LoadBalancerProperties properties = context.getBean(LoadBalancerProperties.class);
 			WebClient.Builder webClient = context.getBean(WebClient.Builder.class);
-			return new HealthCheckServiceInstanceListSupplier(delegate,
-					properties.getHealthCheck(), webClient.build());
+			return new HealthCheckServiceInstanceListSupplier(delegate, properties.getHealthCheck(), webClient.build());
 		};
 		this.creators.add(creator);
 		return this;
@@ -143,14 +140,15 @@ public final class ServiceInstanceListSupplierBuilder {
 	}
 
 	/**
+	 * Zone优先规则
+	 *
 	 * Adds a {@link ZonePreferenceServiceInstanceListSupplier} to the
 	 * {@link ServiceInstanceListSupplier} hierarchy.
 	 * @return the {@link ServiceInstanceListSupplierBuilder} object
 	 */
 	public ServiceInstanceListSupplierBuilder withZonePreference() {
 		DelegateCreator creator = (context, delegate) -> {
-			LoadBalancerZoneConfig zoneConfig = context
-					.getBean(LoadBalancerZoneConfig.class);
+			LoadBalancerZoneConfig zoneConfig = context.getBean(LoadBalancerZoneConfig.class);
 			return new ZonePreferenceServiceInstanceListSupplier(delegate, zoneConfig);
 		};
 		this.creators.add(creator);
@@ -167,15 +165,12 @@ public final class ServiceInstanceListSupplierBuilder {
 	 */
 	public ServiceInstanceListSupplierBuilder withCaching() {
 		if (cachingCreator != null && LOG.isWarnEnabled()) {
-			LOG.warn(
-					"Overriding a previously set cachingCreator with a CachingServiceInstanceListSupplier-based cachingCreator.");
+			LOG.warn("Overriding a previously set cachingCreator with a CachingServiceInstanceListSupplier-based cachingCreator.");
 		}
 		this.cachingCreator = (context, delegate) -> {
-			ObjectProvider<LoadBalancerCacheManager> cacheManagerProvider = context
-					.getBeanProvider(LoadBalancerCacheManager.class);
+			ObjectProvider<LoadBalancerCacheManager> cacheManagerProvider = context.getBeanProvider(LoadBalancerCacheManager.class);
 			if (cacheManagerProvider.getIfAvailable() != null) {
-				return new CachingServiceInstanceListSupplier(delegate,
-						cacheManagerProvider.getIfAvailable());
+				return new CachingServiceInstanceListSupplier(delegate, cacheManagerProvider.getIfAvailable());
 			}
 			if (LOG.isWarnEnabled()) {
 				LOG.warn(

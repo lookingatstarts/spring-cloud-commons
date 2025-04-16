@@ -22,6 +22,7 @@ import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.core.Ordered;
 
 /**
+ *
  * Represents read operations commonly available to discovery services such as Netflix
  * Eureka or consul.io.
  *

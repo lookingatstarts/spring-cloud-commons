@@ -29,13 +29,14 @@ import org.springframework.core.env.Environment;
 import static org.springframework.cloud.loadbalancer.support.LoadBalancerClientFactory.PROPERTY_NAME;
 
 /**
+ * 服务实例列表提供器
+ *
  * A {@link Supplier} of lists of {@link ServiceInstance} objects.
  *
  * @author Olga Maciaszek-Sharma
  * @since 2.2.0
  */
-public interface ServiceInstanceListSupplier
-		extends Supplier<Flux<List<ServiceInstance>>> {
+public interface ServiceInstanceListSupplier extends Supplier<Flux<List<ServiceInstance>>> {
 
 	String getServiceId();
 
@@ -47,6 +48,9 @@ public interface ServiceInstanceListSupplier
 		return new FixedServiceInstanceListSupplier.Builder(environment);
 	}
 
+	/**
+	 * 固定服务实例列表提供器
+	 */
 	static FixedServiceInstanceListSupplier.SimpleBuilder fixed(String serviceId) {
 		return new FixedServiceInstanceListSupplier.SimpleBuilder(serviceId);
 	}
@@ -54,16 +58,14 @@ public interface ServiceInstanceListSupplier
 	class FixedServiceInstanceListSupplier implements ServiceInstanceListSupplier {
 
 		private final String serviceId;
-
-		private List<ServiceInstance> instances;
+		private final List<ServiceInstance> instances;
 
 		@Deprecated
 		public static Builder with(Environment env) {
 			return new Builder(env);
 		}
 
-		private FixedServiceInstanceListSupplier(String serviceId,
-				List<ServiceInstance> instances) {
+		private FixedServiceInstanceListSupplier(String serviceId, List<ServiceInstance> instances) {
 			this.serviceId = serviceId;
 			this.instances = instances;
 		}
@@ -82,7 +84,6 @@ public interface ServiceInstanceListSupplier
 		public static final class SimpleBuilder {
 
 			private final ArrayList<ServiceInstance> instances = new ArrayList<>();
-
 			private final String serviceId;
 
 			private SimpleBuilder(String serviceId) {
@@ -104,6 +105,7 @@ public interface ServiceInstanceListSupplier
 				return instance(instance);
 			}
 
+			// serviceId:host:port
 			private String instanceId(String serviceId, String host, int port) {
 				return serviceId + ":" + host + ":" + port;
 			}

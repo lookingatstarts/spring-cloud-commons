@@ -33,6 +33,8 @@ import org.springframework.lang.Nullable;
 import static org.springframework.cloud.loadbalancer.core.CachingServiceInstanceListSupplier.SERVICE_INSTANCE_CACHE_NAME;
 
 /**
+ * 默认的缓存管理器
+ *
  * An {@link DefaultLoadBalancerCache}-based {@link LoadBalancerCacheManager}
  * implementation.
  *

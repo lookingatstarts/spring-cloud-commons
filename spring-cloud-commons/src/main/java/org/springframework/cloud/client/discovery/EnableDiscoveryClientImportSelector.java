@@ -68,6 +68,9 @@ public class EnableDiscoveryClientImportSelector
 		return imports;
 	}
 
+	/**
+	 * 是否启用
+	 */
 	@Override
 	protected boolean isEnabled() {
 		return getEnvironment().getProperty("spring.cloud.discovery.enabled",

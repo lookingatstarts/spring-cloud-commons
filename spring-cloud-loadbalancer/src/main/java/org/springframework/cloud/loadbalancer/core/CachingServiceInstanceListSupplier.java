@@ -29,6 +29,8 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cloud.client.ServiceInstance;
 
 /**
+ * 支持带缓存的服务实例列表Supplier
+ *
  * A {@link ServiceInstanceListSupplier} implementation that tries retrieving
  * {@link ServiceInstance} objects from cache; if none found, retrieves instances using
  * {@link DiscoveryClientServiceInstanceListSupplier}.
@@ -44,16 +46,15 @@ public class CachingServiceInstanceListSupplier
 			.getLog(CachingServiceInstanceListSupplier.class);
 
 	/**
+	 * 缓存的名字
 	 * Name of the service cache instance.
 	 */
-	public static final String SERVICE_INSTANCE_CACHE_NAME = CachingServiceInstanceListSupplier.class
-			.getSimpleName() + "Cache";
+	public static final String SERVICE_INSTANCE_CACHE_NAME = CachingServiceInstanceListSupplier.class.getSimpleName() + "Cache";
 
 	private final Flux<List<ServiceInstance>> serviceInstances;
 
 	@SuppressWarnings("unchecked")
-	public CachingServiceInstanceListSupplier(ServiceInstanceListSupplier delegate,
-			CacheManager cacheManager) {
+	public CachingServiceInstanceListSupplier(ServiceInstanceListSupplier delegate, CacheManager cacheManager) {
 		super(delegate);
 		this.serviceInstances = CacheFlux.lookup(key -> {
 			// TODO: configurable cache name

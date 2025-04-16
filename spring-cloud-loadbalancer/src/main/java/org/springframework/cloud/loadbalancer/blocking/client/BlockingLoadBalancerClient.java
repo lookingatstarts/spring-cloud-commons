@@ -81,6 +81,7 @@ public class BlockingLoadBalancerClient implements LoadBalancerClient {
 		if (loadBalancer == null) {
 			return null;
 		}
+		// 从负载均衡获取一台实例
 		Response<ServiceInstance> loadBalancerResponse = Mono.from(loadBalancer.choose())
 				.block();
 		if (loadBalancerResponse == null) {

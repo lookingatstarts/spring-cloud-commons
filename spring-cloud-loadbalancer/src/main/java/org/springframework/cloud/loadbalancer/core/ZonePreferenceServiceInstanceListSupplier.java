@@ -39,9 +39,7 @@ public class ZonePreferenceServiceInstanceListSupplier
 		extends DelegatingServiceInstanceListSupplier {
 
 	private final String ZONE = "zone";
-
 	private final LoadBalancerZoneConfig zoneConfig;
-
 	private String zone;
 
 	public ZonePreferenceServiceInstanceListSupplier(ServiceInstanceListSupplier delegate,
@@ -55,6 +53,9 @@ public class ZonePreferenceServiceInstanceListSupplier
 		return getDelegate().get().map(this::filteredByZone);
 	}
 
+	/**
+	 * 过滤zone
+	 */
 	private List<ServiceInstance> filteredByZone(List<ServiceInstance> serviceInstances) {
 		if (zone == null) {
 			zone = zoneConfig.getZone();
@@ -67,7 +68,7 @@ public class ZonePreferenceServiceInstanceListSupplier
 					filteredInstances.add(serviceInstance);
 				}
 			}
-			if (filteredInstances.size() > 0) {
+			if (!filteredInstances.isEmpty()) {
 				return filteredInstances;
 			}
 		}
@@ -76,6 +77,9 @@ public class ZonePreferenceServiceInstanceListSupplier
 		return serviceInstances;
 	}
 
+	/**
+	 * 从元数据中获取zone
+	 */
 	private String getZone(ServiceInstance serviceInstance) {
 		Map<String, String> metadata = serviceInstance.getMetadata();
 		if (metadata != null) {

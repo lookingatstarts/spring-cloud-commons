@@ -34,6 +34,9 @@ import org.springframework.core.env.Environment;
 import static org.springframework.cloud.loadbalancer.support.LoadBalancerClientFactory.PROPERTY_NAME;
 
 /**
+ * 基于服务注册发现机制的服务实例列表Supplier
+ * 通过DiscoveryClient ReactiveDiscoveryClient获取实例列表
+ *
  * A discovery-client-based {@link ServiceInstanceListSupplier} implementation.
  *
  * @author Spencer Gibb
@@ -41,16 +44,15 @@ import static org.springframework.cloud.loadbalancer.support.LoadBalancerClientF
  * @author Tim Ysewyn
  * @since 2.2.0
  */
-public class DiscoveryClientServiceInstanceListSupplier
-		implements ServiceInstanceListSupplier {
+public class DiscoveryClientServiceInstanceListSupplier  implements ServiceInstanceListSupplier {
 
 	/**
+	 * 超时时间
 	 * Property that establishes the timeout for calls to service discovery.
 	 */
 	public static final String SERVICE_DISCOVERY_TIMEOUT = "spring.cloud.loadbalancer.service-discovery.timeout";
 
-	private static final Log LOG = LogFactory
-			.getLog(DiscoveryClientServiceInstanceListSupplier.class);
+	private static final Log LOG = LogFactory.getLog(DiscoveryClientServiceInstanceListSupplier.class);
 
 	private Duration timeout = Duration.ofSeconds(30);
 
@@ -58,8 +60,11 @@ public class DiscoveryClientServiceInstanceListSupplier
 
 	private final Flux<List<ServiceInstance>> serviceInstances;
 
-	public DiscoveryClientServiceInstanceListSupplier(DiscoveryClient delegate,
-			Environment environment) {
+	/**
+	 * @param delegate 底层真正干活的
+	 * @param environment 环境
+	 */
+	public DiscoveryClientServiceInstanceListSupplier(DiscoveryClient delegate, Environment environment) {
 		this.serviceId = environment.getProperty(PROPERTY_NAME);
 		resolveTimeout(environment);
 		this.serviceInstances = Flux
@@ -68,17 +73,19 @@ public class DiscoveryClientServiceInstanceListSupplier
 				.timeout(timeout, Flux.defer(() -> {
 					logTimeout();
 					return Flux.just(new ArrayList<>());
-				})).onErrorResume(error -> {
+				}))
+				.onErrorResume(error -> {
 					logException(error);
 					return Flux.just(new ArrayList<>());
 				});
 	}
 
-	public DiscoveryClientServiceInstanceListSupplier(ReactiveDiscoveryClient delegate,
-			Environment environment) {
+	public DiscoveryClientServiceInstanceListSupplier(ReactiveDiscoveryClient delegate, Environment environment) {
 		this.serviceId = environment.getProperty(PROPERTY_NAME);
+		// 获取超时时间
 		resolveTimeout(environment);
-		this.serviceInstances = Flux.defer(() -> delegate.getInstances(serviceId)
+		this.serviceInstances = Flux
+				.defer(() -> delegate.getInstances(serviceId)
 				.collectList().flux().timeout(timeout, Flux.defer(() -> {
 					logTimeout();
 					return Flux.just(new ArrayList<>());
@@ -121,5 +128,4 @@ public class DiscoveryClientServiceInstanceListSupplier
 					serviceId), error);
 		}
 	}
-
 }

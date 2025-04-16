@@ -21,6 +21,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
 /**
+ * 委托抽象类
  * Represents a {@link ServiceInstanceListSupplier} that uses a delegate
  * {@link ServiceInstanceListSupplier} instance underneath.
  *

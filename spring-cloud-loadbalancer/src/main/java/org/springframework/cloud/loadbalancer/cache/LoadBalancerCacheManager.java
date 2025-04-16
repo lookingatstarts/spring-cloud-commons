@@ -19,6 +19,7 @@ package org.springframework.cloud.loadbalancer.cache;
 import org.springframework.cache.CacheManager;
 
 /**
+ * 支持缓存
  * A marker interface for Spring Cloud LoadBalancer-specific {@link CacheManager} beans.
  *
  * @author Olga Maciaszek-Sharma

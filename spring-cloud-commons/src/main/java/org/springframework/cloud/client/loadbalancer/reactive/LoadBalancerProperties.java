@@ -23,6 +23,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.LinkedCaseInsensitiveMap;
 
 /**
+ * 负载均衡配置
  * A {@link ConfigurationProperties} bean for Spring Cloud LoadBalancer.
  *
  * @author Olga Maciaszek-Sharma
