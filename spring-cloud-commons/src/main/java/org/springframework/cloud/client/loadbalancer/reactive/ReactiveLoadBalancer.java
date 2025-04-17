@@ -40,15 +40,17 @@ public interface ReactiveLoadBalancer<T> {
 	@SuppressWarnings("rawtypes")
 	Publisher<Response<T>> choose(Request request);
 
-	default Publisher<Response<T>> choose() { // conflicting name
+	default Publisher<Response<T>> choose() { // conflicting(冲突) name
 		return choose(REQUEST);
 	}
 
+	/**
+	 * 工厂类：通过服务名称创建Reactive负载均衡器
+	 */
 	@FunctionalInterface
 	interface Factory<T> {
 
 		ReactiveLoadBalancer<T> getInstance(String serviceId);
-
 	}
 
 }

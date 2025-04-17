@@ -16,12 +16,7 @@
 
 package org.springframework.cloud.context.named;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.BeansException;
@@ -45,20 +40,20 @@ import org.springframework.core.env.MapPropertySource;
  * @author Spencer Gibb
  * @author Dave Syer
  */
-// TODO: add javadoc
 public abstract class NamedContextFactory<C extends NamedContextFactory.Specification>
 		implements DisposableBean, ApplicationContextAware {
-
+	/**
+	 * 子容器的environment中添加一个property数据源，名称为propertySourceName
+	 * 数据源中存在一条配置：key: propertyName value: specification.getName()
+	 */
 	private final String propertySourceName;
-
 	private final String propertyName;
-
-	private Map<String, AnnotationConfigApplicationContext> contexts = new ConcurrentHashMap<>();
-
-	private Map<String, C> configurations = new ConcurrentHashMap<>();
-
+	// key: 为Specification的name
+	private final Map<String, AnnotationConfigApplicationContext> contexts = new ConcurrentHashMap<>();
+	private final Map<String, C> configurations = new ConcurrentHashMap<>();
+	// 父容器
 	private ApplicationContext parent;
-
+	// 默认配置类
 	private Class<?> defaultConfigType;
 
 	public NamedContextFactory(Class<?> defaultConfigType, String propertySourceName,
@@ -105,14 +100,18 @@ public abstract class NamedContextFactory<C extends NamedContextFactory.Specific
 		return this.contexts.get(name);
 	}
 
+	/**
+	 * 创建子容器
+	 */
 	protected AnnotationConfigApplicationContext createContext(String name) {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-		if (this.configurations.containsKey(name)) {
-			for (Class<?> configuration : this.configurations.get(name)
-					.getConfiguration()) {
+		C specification = this.configurations.get(name);
+		if (Objects.nonNull(specification)) {
+			for (Class<?> configuration :specification.getConfiguration()) {
 				context.register(configuration);
 			}
 		}
+		// 只要名称以default.开头的配置类
 		for (Map.Entry<String, C> entry : this.configurations.entrySet()) {
 			if (entry.getKey().startsWith("default.")) {
 				for (Class<?> configuration : entry.getValue().getConfiguration()) {
@@ -120,11 +119,11 @@ public abstract class NamedContextFactory<C extends NamedContextFactory.Specific
 				}
 			}
 		}
-		context.register(PropertyPlaceholderAutoConfiguration.class,
-				this.defaultConfigType);
+		// 注册默认配置类，PropertyPlaceholderAutoConfiguration配置类
+		context.register(PropertyPlaceholderAutoConfiguration.class, this.defaultConfigType);
+		// 往environment中注册PropertySources添加数据源
 		context.getEnvironment().getPropertySources().addFirst(new MapPropertySource(
-				this.propertySourceName,
-				Collections.<String, Object>singletonMap(this.propertyName, name)));
+				this.propertySourceName, Collections.singletonMap(this.propertyName, name)));
 		if (this.parent != null) {
 			// Uses Environment from parent as well as beans
 			context.setParent(this.parent);
@@ -189,6 +188,8 @@ public abstract class NamedContextFactory<C extends NamedContextFactory.Specific
 	}
 
 	/**
+	 * 一个Specification就是一个配置，通过name区分，NamedContextFactory内部维护多个specification
+	 * configuration就是配置类，往子容器添加bean，然后通过name，类型获取子容器中的bean，达到不同服务容器隔离
 	 * Specification with name and configuration.
 	 */
 	public interface Specification {
@@ -196,7 +197,6 @@ public abstract class NamedContextFactory<C extends NamedContextFactory.Specific
 		String getName();
 
 		Class<?>[] getConfiguration();
-
 	}
 
 }

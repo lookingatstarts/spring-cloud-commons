@@ -29,6 +29,8 @@ import org.springframework.core.env.Environment;
  * creates a Spring ApplicationContext per client name, and extracts the beans that it
  * needs from there.
  *
+ * LoadBalancerClient工厂类，按服务级别隔离
+ *
  * @author Spencer Gibb
  * @author Dave Syer
  * @author Olga Maciaszek-Sharma
@@ -43,7 +45,7 @@ public class LoadBalancerClientFactory
 	public static final String NAMESPACE = "loadbalancer";
 
 	/**
-	 * Property for client name within the load balancer namespace.
+	 * loadbalancer.client.name = LoadBalancerClientSpecification.getName()
 	 */
 	public static final String PROPERTY_NAME = NAMESPACE + ".client.name";
 
@@ -55,6 +57,10 @@ public class LoadBalancerClientFactory
 		return environment.getProperty(PROPERTY_NAME);
 	}
 
+	/**
+	 * 创建ReactiveLoadBalancer
+	 * @param serviceId 子容器名称
+	 */
 	@Override
 	public ReactiveLoadBalancer<ServiceInstance> getInstance(String serviceId) {
 		return getInstance(serviceId, ReactorServiceInstanceLoadBalancer.class);

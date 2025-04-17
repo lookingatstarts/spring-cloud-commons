@@ -57,7 +57,6 @@ public class CachingServiceInstanceListSupplier
 	public CachingServiceInstanceListSupplier(ServiceInstanceListSupplier delegate, CacheManager cacheManager) {
 		super(delegate);
 		this.serviceInstances = CacheFlux.lookup(key -> {
-			// TODO: configurable cache name
 			Cache cache = cacheManager.getCache(SERVICE_INSTANCE_CACHE_NAME);
 			if (cache == null) {
 				if (log.isErrorEnabled()) {
@@ -70,18 +69,17 @@ public class CachingServiceInstanceListSupplier
 				return Mono.empty();
 			}
 			return Flux.just(list).materialize().collectList();
-		}, delegate.getServiceId()).onCacheMissResume(delegate.get().take(1))
+		}, delegate.getServiceId())
+				.onCacheMissResume(delegate.get().take(1))
 				.andWriteWith((key, signals) -> Flux.fromIterable(signals).dematerialize()
 						.doOnNext(instances -> {
-							Cache cache = cacheManager
-									.getCache(SERVICE_INSTANCE_CACHE_NAME);
+							Cache cache = cacheManager.getCache(SERVICE_INSTANCE_CACHE_NAME);
 							if (cache == null) {
 								if (log.isErrorEnabled()) {
 									log.error("Unable to find cache for writing: "
 											+ SERVICE_INSTANCE_CACHE_NAME);
 								}
-							}
-							else {
+							} else {
 								cache.put(key, instances);
 							}
 						}).then());

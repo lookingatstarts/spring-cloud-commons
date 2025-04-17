@@ -24,13 +24,14 @@ import org.springframework.core.style.ToStringCreator;
 import org.springframework.util.Assert;
 
 /**
+ * Specification 负载均衡配置组，通过name区分不同配置
+ *
  * @author Dave Syer
  */
 public class LoadBalancerClientSpecification
 		implements NamedContextFactory.Specification {
 
 	private String name;
-
 	private Class<?>[] configuration;
 
 	public LoadBalancerClientSpecification() {
